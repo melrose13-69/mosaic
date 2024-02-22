@@ -13,17 +13,12 @@
   "dependencies": {
     "canvas": "^2.11.2",
     "image-size": "^1.1.1",
-    "merge-images": "^2.0.0",
     "nearest-color": "^0.4.4",
-    "node-merge-images": "^1.0.0",
     "pdfkit": "^0.14.0",
     "rgbaster": "^2.1.1",
-    "sharp": "^0.33.2",
     "svg-builder": "^2.0.0",
     "svg-to-pdfkit": "^0.1.8",
-    "typescript": "^5.3.3",
-    "vite": "^4.0.0",
-    "vite-plugin-node": "^3.1.0"
+    "typescript": "^5.3.3"
   },
   "devDependencies": {
     "@types/nearest-color": "^0.4.1",
