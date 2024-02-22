@@ -1,4 +1,4 @@
-import {AspectRatio, MosaicColor, MosaicColorName, MosaicMeta, MosaicName} from "../types/types";
+import {AspectRatio, MosaicMeta, MosaicMetaData, MosaicTypeName} from "../types/types";
 import {generateMatrix} from "../utils/support";
 import {Matrix, MosaicMatrixData} from "../types/modules";
 import {getAverageColor} from '../utils/support'
@@ -37,21 +37,21 @@ export class Mosaic {
         }
     }
 
-    getMosaicColors(mosaicMeta: MosaicMeta) {
+    private static getMosaicColors(mosaicMeta: MosaicMeta) {
         const mosaicNames = Object.keys(mosaicMeta) as (keyof typeof mosaicMeta)[]
 
-        return mosaicNames.reduce((acc, name) => {
-            return {...acc, [name]: mosaicMeta[name].color}
-        }, {} as Record<MosaicName, string>)
+        return mosaicNames.reduce((acc, mosaicName) => {
+            return {...acc, [mosaicName]: mosaicMeta[mosaicName].color}
+        }, {} as Record<string, string>)
     }
 
     async getMosaicPath(ctx: CanvasRenderingContext2D, image: string, sx: number, sy: number, mosaicMeta: MosaicMeta) {
-        const mosaicColors = this.getMosaicColors(mosaicMeta)
-
         const imageColor = await getAverageColor(image)
+        const mosaicColors = Mosaic.getMosaicColors(mosaicMeta)
+
         // @ts-ignore
         const {name} = nearestColor.from(mosaicColors)(imageColor)
-        const {src, colorName, matrixColor} = mosaicMeta[name as MosaicName]
+        const {src, colorName, matrixColor} = mosaicMeta[name]
         const img = await loadImage(src)
 
         // @ts-ignore
@@ -64,7 +64,7 @@ export class Mosaic {
         }
     }
 
-    async getMosaicImage(croppedImageData: Matrix, name: MosaicName): Promise<Canvas> {
+    async getMosaicImage(croppedImageData: Matrix, name: MosaicTypeName): Promise<Canvas> {
         try {
             const mosaicMeta = await getMosaicMeta(name)
 

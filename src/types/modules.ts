@@ -1,8 +1,8 @@
-import {MosaicName} from "./types";
+import {MosaicTypeName} from "./types";
 
 export type Matrix = any[][][][]
 
-export type MosaicMatrixData = Record<MosaicName, Matrix | undefined>
+export type MosaicMatrixData = Record<MosaicTypeName, Matrix | undefined>
 
 export type ImagePath = {
     image: string

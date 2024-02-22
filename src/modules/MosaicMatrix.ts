@@ -1,4 +1,4 @@
-import {AspectRatio, MosaicName} from '../types/types'
+import {AspectRatio, MosaicTypeName} from '../types/types'
 import {Cropper} from './Cropper'
 import PDFDocument from 'pdfkit'
 import SVGtoPDF from 'svg-to-pdfkit'
@@ -14,7 +14,7 @@ export class MosaicMatrix extends Cropper {
         super(url, imageAspectRatio, cubeAspectRatio)
     }
 
-    async generateMosaicImage(name: MosaicName) {
+    async generateMosaicImage(name: MosaicTypeName) {
         try {
             await this.cropImage()
 
@@ -26,7 +26,7 @@ export class MosaicMatrix extends Cropper {
         }
     }
 
-    async generateInstructions(base64Image: string, name: MosaicName, output?: string) {
+    async generateInstructions(base64Image: string, name: MosaicTypeName, output?: string) {
         try {
             if (output && !output.endsWith('.pdf')) {
                 throw new Error('Should be .pdf file')

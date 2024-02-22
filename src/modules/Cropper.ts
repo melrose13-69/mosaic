@@ -1,4 +1,4 @@
-import {AspectRatio, MosaicName} from "../types/types";
+import {AspectRatio, MosaicTypeName} from "../types/types";
 import {createCanvas, Image} from 'canvas'
 import {Mosaic} from './Mosaic'
 // @ts-ignore
@@ -77,7 +77,7 @@ export class Cropper extends Mosaic {
         }
     }
 
-    cropMosaicCubes(name: MosaicName) {
+    cropMosaicCubes(name: MosaicTypeName) {
         try {
             const rectSize = 20
             const mosaicMargin = 5

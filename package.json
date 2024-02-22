@@ -5,7 +5,7 @@
   "main": "combine.js",
   "scripts": {
     "run-script": "ts-node src/index.ts",
-    "build": "tsc -p tsconfig.json"
+    "build": "tsc -p tsconfig.json && cp -R src/images dist/images"
   },
   "keywords": [],
   "author": "",
