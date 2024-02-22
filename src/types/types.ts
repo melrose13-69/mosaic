@@ -1,5 +1,3 @@
-import {Image} from "canvas";
-
 export type MosaicTypeName = 'ocean' | 'original' | 'disco' | 'vintage'
 export type MosaicColorName = 'z' | 'x' | 'k' | 'f' | 'e' | 'h' | 'v'
 
