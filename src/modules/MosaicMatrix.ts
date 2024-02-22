@@ -3,6 +3,7 @@ import {Cropper} from './Cropper'
 import PDFDocument from 'pdfkit'
 import SVGtoPDF from 'svg-to-pdfkit'
 import {Matrix} from "../types/modules";
+import {createWriteStream} from "node:fs";
 
 export class MosaicMatrix extends Cropper {
     constructor(
@@ -25,11 +26,19 @@ export class MosaicMatrix extends Cropper {
         }
     }
 
-    async generateInstructions(base64Image: string, name: MosaicName) {
+    async generateInstructions(base64Image: string, name: MosaicName, output?: string) {
         try {
+            if (output && !output.endsWith('.pdf')) {
+                throw new Error('Should be .pdf file')
+            }
+
             const {cubes, cubeWidth, cubeHeight} = this.cropMosaicCubes(name)
 
             const doc = new PDFDocument()
+
+            if (output) {
+                doc.pipe(createWriteStream(output))
+            }
 
             const base64String = base64Image.split(';base64,').pop() as string
             const imageBuffer = Buffer.from(base64String, 'base64')

@@ -78,68 +78,76 @@ export class Cropper extends Mosaic {
     }
 
     cropMosaicCubes(name: MosaicName) {
-        const rectSize = 20
-        const mosaicMargin = 5
-        const [xMosaics, yMosaics] = this.cubeAspectRatio
+        try {
+            const rectSize = 20
+            const mosaicMargin = 5
+            const [xMosaics, yMosaics] = this.cubeAspectRatio
 
-        const cubeWidth = xMosaics * rectSize + xMosaics * mosaicMargin
-        const cubeHeight = yMosaics * rectSize + yMosaics * mosaicMargin
+            const cubeWidth = xMosaics * rectSize + xMosaics * mosaicMargin
+            const cubeHeight = yMosaics * rectSize + yMosaics * mosaicMargin
 
-        const cubesDetails: CubeDetails = {
-            cubes: [],
-            cubeWidth,
-            cubeHeight
-        }
-
-        for (const line of (this.mosaicMatrix[name] ?? [])) {
-            for (let i = 0; i < line.length; i++) {
-                const cube = line[i]
-                const cubeSvg = SvgBuilder.newInstance().width(cubeWidth).height(cubeHeight)
-
-                for (let k = 0; k < cube.length; k++) {
-                    const cubLine = cube[k]
-                    const prevRect = {i: 1, name: ''}
-
-                    for (let j = 0; j < cubLine.length; j++) {
-                        const mosaic = cubLine[j]
-
-                        if (prevRect.name === mosaic.colorName) {
-                            prevRect.i = prevRect.i + 1
-                        } else {
-                            prevRect.i = 1
-                            prevRect.name = mosaic.colorName
-                        }
-
-
-                        const x = mosaic.y * rectSize + (mosaicMargin * j)
-                        const y = mosaic.x * rectSize + (mosaicMargin * k)
-
-                        cubeSvg
-                            .rect({x, y, fill: mosaic.matrixColor.mosaic, width: rectSize, height: rectSize, rx: 3})
-                            .text({
-                                x: x + 2,
-                                y: y + 18,
-                                'font-size': 10,
-                                'font-family': 'Arial',
-                                fill: mosaic.matrixColor.text
-                            }, mosaic.colorName.toUpperCase())
-                            .text({
-                                x: x + 15,
-                                y: y + 6,
-                                'font-size': 5,
-                                'font-family': 'Arial',
-                                fill: mosaic.matrixColor.text
-                            }, prevRect.i.toString())
-                    }
-                }
-
-                const svg = cubeSvg.render()
-
-                cubesDetails.cubes.push(svg)
+            const cubesDetails: CubeDetails = {
+                cubes: [],
+                cubeWidth,
+                cubeHeight
             }
-        }
 
-        return cubesDetails
+            if (!this.mosaicMatrix[name]) {
+                throw new Error(`First generate mosaic image with '${name}' argument`)
+            }
+
+            for (const line of (this.mosaicMatrix[name] ?? [])) {
+                for (let i = 0; i < line.length; i++) {
+                    const cube = line[i]
+                    const cubeSvg = SvgBuilder.newInstance().width(cubeWidth).height(cubeHeight)
+
+                    for (let k = 0; k < cube.length; k++) {
+                        const cubLine = cube[k]
+                        const prevRect = {i: 1, name: ''}
+
+                        for (let j = 0; j < cubLine.length; j++) {
+                            const mosaic = cubLine[j]
+
+                            if (prevRect.name === mosaic.colorName) {
+                                prevRect.i = prevRect.i + 1
+                            } else {
+                                prevRect.i = 1
+                                prevRect.name = mosaic.colorName
+                            }
+
+
+                            const x = mosaic.y * rectSize + (mosaicMargin * j)
+                            const y = mosaic.x * rectSize + (mosaicMargin * k)
+
+                            cubeSvg
+                                .rect({x, y, fill: mosaic.matrixColor.mosaic, width: rectSize, height: rectSize, rx: 3})
+                                .text({
+                                    x: x + 2,
+                                    y: y + 18,
+                                    'font-size': 10,
+                                    'font-family': 'Arial',
+                                    fill: mosaic.matrixColor.text
+                                }, mosaic.colorName.toUpperCase())
+                                .text({
+                                    x: x + 15,
+                                    y: y + 6,
+                                    'font-size': 5,
+                                    'font-family': 'Arial',
+                                    fill: mosaic.matrixColor.text
+                                }, prevRect.i.toString())
+                        }
+                    }
+
+                    const svg = cubeSvg.render()
+
+                    cubesDetails.cubes.push(svg)
+                }
+            }
+
+            return cubesDetails
+        } catch (e) {
+            throw new Error('e')
+        }
     }
 }
 

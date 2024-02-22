@@ -71,10 +71,6 @@ export class Mosaic {
             const [xCubes, yCubes] = this.imageAspectRatio
             const [xMosaics, yMosaics] = this.cubeAspectRatio
 
-            if (this.mosaicMatrix[name]) {
-                this.mosaicMatrix[name] = generateMatrix(yCubes, xCubes, yMosaics)
-            }
-
             this.mosaicMatrix[name] = generateMatrix(yCubes, xCubes, yMosaics)
 
             const canvas = createCanvas(this.width, this.height)
