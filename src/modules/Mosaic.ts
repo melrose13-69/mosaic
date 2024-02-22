@@ -54,7 +54,6 @@ export class Mosaic {
         const {src, colorName, matrixColor} = mosaicMeta[name]
         const img = await loadImage(src)
 
-        // @ts-ignore
         ctx.drawImage(img, sx, sy, this.mosaicSize, this.mosaicSize)
 
         return {

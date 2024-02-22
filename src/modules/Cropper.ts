@@ -146,7 +146,7 @@ export class Cropper extends Mosaic {
 
             return cubesDetails
         } catch (e) {
-            throw new Error('e')
+            throw new Error(e)
         }
     }
 }
