@@ -40,32 +40,35 @@ export class Cropper extends Mosaic {
     }
 
     async cropImage() {
-        const [xCubes, yCubes] = this.imageAspectRatio
-        const [xMosaic, yMosaic] = this.cubeAspectRatio
+        try {
+            const [xCubes, yCubes] = this.imageAspectRatio
+            const [xMosaic, yMosaic] = this.cubeAspectRatio
 
-        if (this.croppedImage) return
+            if (this.croppedImage) return
 
-        if (!this.croppedImage) {
-            this.croppedImage = generateMatrix(yCubes, xCubes, yMosaic)
-        }
+            if (!this.croppedImage) {
+                this.croppedImage = generateMatrix(yCubes, xCubes, yMosaic)
+            }
 
-        const img = new Image();
-        img.src = this.url
+            const img = new Image();
+            img.src = this.url
 
-        for (let line = 0; line < yCubes; line++) {
-            for (let cube = 0; cube < xCubes; cube++) {
-                for (let cubeLine = 0; cubeLine < yMosaic; cubeLine++) {
-                    for (let mosaic = 0; mosaic < xMosaic; mosaic++) {
-                        const x = cube === 0 ? mosaic : (xMosaic * cube) + mosaic
-                        const y = line === 0 ? cubeLine : (line * yMosaic) + cubeLine
+            for (let line = 0; line < yCubes; line++) {
+                for (let cube = 0; cube < xCubes; cube++) {
+                    for (let cubeLine = 0; cubeLine < yMosaic; cubeLine++) {
+                        for (let mosaic = 0; mosaic < xMosaic; mosaic++) {
+                            const x = cube === 0 ? mosaic : (xMosaic * cube) + mosaic
+                            const y = line === 0 ? cubeLine : (line * yMosaic) + cubeLine
 
-                        const {image, sx, sy} = await this.cropImagePath(img, x, y)
+                            const {image, sx, sy} = await this.cropImagePath(img, x, y)
 
-                        // @ts-ignore
-                        this.croppedImage[line][cube][cubeLine].push({image, x: cubeLine, y: mosaic, sx, sy})
+                            this.croppedImage[line][cube][cubeLine].push({image, x: cubeLine, y: mosaic, sx, sy})
+                        }
                     }
                 }
             }
+        } catch (e) {
+            throw new Error(e)
         }
     }
 
