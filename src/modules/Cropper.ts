@@ -3,11 +3,12 @@ import {createCanvas, Image} from 'canvas'
 import {Mosaic} from './Mosaic'
 // @ts-ignore
 import SvgBuilder from 'svg-builder'
-import {CubeDetails, ImagePath, Matrix} from "../types/modules";
+import {CroppedImageMatrix, CubeDetails, ImagePath} from "../types/modules";
 import {generateMatrix} from "../utils/support";
+import {resolve} from "path";
 
 export class Cropper extends Mosaic {
-    public croppedImage: Matrix | undefined
+    public croppedImage: CroppedImageMatrix | undefined
 
     constructor(
         readonly url: string,
@@ -19,61 +20,52 @@ export class Cropper extends Mosaic {
         this.croppedImage = undefined
     }
 
-    cropImagePath(x: number, y: number): Promise<ImagePath> {
-        const canvas = createCanvas(this.mosaicSize, this.mosaicSize)
-        const context = canvas.getContext('2d');
-        const image = new Image();
+    cropImagePath(image: Image, x: number, y: number): Promise<ImagePath> {
+        return new Promise(resolve => {
+            const canvas = createCanvas(this.mosaicSize, this.mosaicSize)
+            const context = canvas.getContext('2d');
 
-        const sx = x * this.mosaicSize
-        const sy = y * this.mosaicSize
+            const sx = x * this.mosaicSize
+            const sy = y * this.mosaicSize
 
-        canvas.width = this.mosaicSize;
-        canvas.height = this.mosaicSize;
+            canvas.width = this.mosaicSize;
+            canvas.height = this.mosaicSize;
 
-        return new Promise((resolve, reject) => {
-            image.onload = () => {
-                context.drawImage(image, sx, sy, this.mosaicSize, this.mosaicSize, 0, 0, this.mosaicSize, this.mosaicSize);
+            context.drawImage(image, sx, sy, this.mosaicSize, this.mosaicSize, 0, 0, this.mosaicSize, this.mosaicSize);
 
-                const b64 = canvas.toDataURL('image/png')
+            const b64 = canvas.toDataURL('image/png')
 
-                resolve({image: b64, sx, sy, x, y})
-            }
-
-            image.onerror = () => {
-                reject(Error('An error occurred attempting to load image'))
-            }
-
-            image.src = this.url;
+            resolve({image: b64, sx, sy, x, y})
         })
     }
 
     async cropImage() {
-        try {
-            const [xCubes, yCubes] = this.imageAspectRatio
-            const [xMosaic, yMosaic] = this.cubeAspectRatio
+        const [xCubes, yCubes] = this.imageAspectRatio
+        const [xMosaic, yMosaic] = this.cubeAspectRatio
 
-            if (this.croppedImage) return
+        if (this.croppedImage) return
 
-            if (!this.croppedImage) {
-                this.croppedImage = generateMatrix(yCubes, xCubes, yMosaic)
-            }
+        if (!this.croppedImage) {
+            this.croppedImage = generateMatrix(yCubes, xCubes, yMosaic)
+        }
 
-            for (let line = 0; line < yCubes; line++) {
-                for (let cube = 0; cube < xCubes; cube++) {
-                    for (let cubeLine = 0; cubeLine < yMosaic; cubeLine++) {
-                        for (let mosaic = 0; mosaic < xMosaic; mosaic++) {
-                            const x = cube === 0 ? mosaic : (xMosaic * cube) + mosaic
-                            const y = line === 0 ? cubeLine : (line * yMosaic) + cubeLine
+        const img = new Image();
+        img.src = this.url
 
-                            const {image, sx, sy} = await this.cropImagePath(x, y)
+        for (let line = 0; line < yCubes; line++) {
+            for (let cube = 0; cube < xCubes; cube++) {
+                for (let cubeLine = 0; cubeLine < yMosaic; cubeLine++) {
+                    for (let mosaic = 0; mosaic < xMosaic; mosaic++) {
+                        const x = cube === 0 ? mosaic : (xMosaic * cube) + mosaic
+                        const y = line === 0 ? cubeLine : (line * yMosaic) + cubeLine
 
-                            this.croppedImage[line][cube][cubeLine].push({image, x: cubeLine, y: mosaic, sx, sy})
-                        }
+                        const {image, sx, sy} = await this.cropImagePath(img, x, y)
+
+                        // @ts-ignore
+                        this.croppedImage[line][cube][cubeLine].push({image, x: cubeLine, y: mosaic, sx, sy})
                     }
                 }
             }
-        } catch (e) {
-            throw new Error(e)
         }
     }
 

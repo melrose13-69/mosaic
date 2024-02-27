@@ -1,6 +1,7 @@
 import {MosaicTypeName} from "./types";
 
 export type Matrix = any[][][][]
+export type CroppedImageMatrix = ImagePath[][][][]
 
 export type MosaicMatrixData = Record<MosaicTypeName, Matrix | undefined>
 
@@ -11,7 +12,6 @@ export type ImagePath = {
     x: number
     y: number
 }
-
 
 export type CubeDetails = {
     cubes: string[]
