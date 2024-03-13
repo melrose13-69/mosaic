@@ -1,7 +1,7 @@
-import {readdirSync} from 'fs'
-import {resolve} from 'path'
+import {readdirSync} from 'node:fs'
+import {resolve} from 'node:path'
 import {getAverageColor} from './support'
-import {MosaicColorName, MosaicMeta, MosaicTypeName} from "../types/types";
+import {MosaicColorName, MosaicMeta, MosaicTypeName} from '../types'
 import {mosaicColors} from './staticData'
 
 const validateMosaicType = (type: MosaicTypeName) => {
@@ -9,6 +9,7 @@ const validateMosaicType = (type: MosaicTypeName) => {
         throw new Error('Unvalid mosaic type')
     }
 }
+
 
 export const getMosaicMeta = async (name: MosaicTypeName) => {
     try {
@@ -33,6 +34,14 @@ export const getMosaicMeta = async (name: MosaicTypeName) => {
 
         return mosaicMeta
     } catch (e) {
-        throw new Error(e)
+        throw e
     }
+}
+
+export const getMosaicColors = (mosaicMeta: MosaicMeta) => {
+    const mosaicNames = Object.keys(mosaicMeta) as (keyof typeof mosaicMeta)[]
+
+    return mosaicNames.reduce((acc, mosaicName) => {
+        return {...acc, [mosaicName]: mosaicMeta[mosaicName].color}
+    }, {} as Record<string, string>)
 }

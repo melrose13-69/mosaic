@@ -1,17 +1,17 @@
-import {AspectRatio, MosaicMeta, MosaicMetaData, MosaicTypeName} from "../types/types";
-import {generateMatrix} from "../utils/support";
-import {Matrix, MosaicMatrixData} from "../types/modules";
-import {getAverageColor} from '../utils/support'
+import {AspectRatio, MosaicMeta, MosaicTypeName, CroppedImageMatrix, MosaicMatrixData} from '../types'
+import {generateMatrix, getAverageColor, getMosaicColors, getMosaicMeta} from '../utils'
 import nearestColor from 'nearest-color'
 import {loadImage, createCanvas, Canvas, CanvasRenderingContext2D} from 'canvas'
 import sizeOf from 'image-size'
-import {getMosaicMeta} from '../utils/mosaicData'
 
 export class Mosaic {
     private readonly width: number
     private readonly height: number
 
-    public readonly mosaicSize: number
+    public readonly mosaicSize: {
+        naturalSize: number
+        ceilSize: number
+    }
     public readonly mosaicMatrix: MosaicMatrixData
 
     constructor(
@@ -37,24 +37,16 @@ export class Mosaic {
         }
     }
 
-    private static getMosaicColors(mosaicMeta: MosaicMeta) {
-        const mosaicNames = Object.keys(mosaicMeta) as (keyof typeof mosaicMeta)[]
-
-        return mosaicNames.reduce((acc, mosaicName) => {
-            return {...acc, [mosaicName]: mosaicMeta[mosaicName].color}
-        }, {} as Record<string, string>)
-    }
 
     async getMosaicPath(ctx: CanvasRenderingContext2D, image: string, sx: number, sy: number, mosaicMeta: MosaicMeta) {
         const imageColor = await getAverageColor(image)
-        const mosaicColors = Mosaic.getMosaicColors(mosaicMeta)
+        const mosaicColors = getMosaicColors(mosaicMeta)
 
-        // @ts-ignore
-        const {name} = nearestColor.from(mosaicColors)(imageColor)
+        const {name} = nearestColor.from(mosaicColors)(imageColor) as { name: string }
         const {src, colorName, matrixColor} = mosaicMeta[name]
         const img = await loadImage(src)
 
-        ctx.drawImage(img, sx, sy, this.mosaicSize, this.mosaicSize)
+        ctx.drawImage(img, sx, sy, this.mosaicSize.ceilSize, this.mosaicSize.ceilSize)
 
         return {
             colorName,
@@ -63,7 +55,7 @@ export class Mosaic {
         }
     }
 
-    async getMosaicImage(croppedImageData: Matrix, name: MosaicTypeName): Promise<Canvas> {
+    async getMosaicImage(croppedImageData: CroppedImageMatrix, name: MosaicTypeName): Promise<Canvas> {
         try {
             const mosaicMeta = await getMosaicMeta(name)
 
@@ -101,7 +93,7 @@ export class Mosaic {
 
             return canvas
         } catch (e) {
-            throw new Error(e)
+            throw e
         }
     }
 
@@ -113,7 +105,11 @@ export class Mosaic {
         const yMosaicCount = yCubes * yMosaics
         const mosaicWidth = this.width / xMosaicCount
         const mosaicHeight = this.height / yMosaicCount
+        const naturalSize = (mosaicWidth + mosaicHeight) / 2
 
-        return (mosaicWidth + mosaicHeight) / 2
+        return {
+            naturalSize,
+            ceilSize: Math.ceil(naturalSize)
+        }
     }
 }

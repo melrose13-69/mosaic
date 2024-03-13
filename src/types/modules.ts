@@ -1,4 +1,4 @@
-import {MosaicTypeName} from "./types";
+import {MosaicTypeName} from './types'
 
 export type Matrix = any[][][][]
 export type CroppedImageMatrix = ImagePath[][][][]

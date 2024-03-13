@@ -1,4 +1,4 @@
-import {MosaicColors} from "../types/types";
+import {MosaicColors} from '../types'
 
 export const mosaicColors: MosaicColors = {
     ocean: {

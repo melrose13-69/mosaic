@@ -1,5 +1,7 @@
 node_modules
 dist
 .idea
-src/images/disco.png
-output.pdf
+output/*
+
+src/services/*
+bin/*

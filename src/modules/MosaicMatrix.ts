@@ -1,9 +1,8 @@
-import {AspectRatio, MosaicTypeName} from '../types/types'
+import {AspectRatio, MosaicTypeName} from '../types'
 import {Cropper} from './Cropper'
 import PDFDocument from 'pdfkit'
 import SVGtoPDF from 'svg-to-pdfkit'
-import {Matrix} from "../types/modules";
-import {createWriteStream} from "node:fs";
+import {createWriteStream} from "node:fs"
 
 export class MosaicMatrix extends Cropper {
     constructor(
@@ -18,11 +17,15 @@ export class MosaicMatrix extends Cropper {
         try {
             await this.cropImage()
 
-            const canvas = await this.getMosaicImage(this.croppedImage as Matrix, name)
+            if (!this.croppedImage) {
+                throw new Error('Error with crop image')
+            }
+
+            const canvas = await this.getMosaicImage(this.croppedImage, name)
 
             return canvas.toDataURL('image/png')
         } catch (e) {
-            throw new Error(e)
+            throw e
         }
     }
 
@@ -54,7 +57,7 @@ export class MosaicMatrix extends Cropper {
             for (let i = 0; i < cubes.length; i++) {
                 const cube = cubes[i]
 
-                newLine = i !== 0 && i % 3 === 0;
+                newLine = i !== 0 && i % 3 === 0
 
                 if (newLine) {
                     coords.x = 0
@@ -68,19 +71,19 @@ export class MosaicMatrix extends Cropper {
                     coords.y = TEXT_MARGIN
                 }
 
-                doc.text((i + 1).toString(), coords.x, coords.y - TEXT_MARGIN);
+                doc.text((i + 1).toString(), coords.x, coords.y - TEXT_MARGIN)
 
-                SVGtoPDF(doc, cube, coords.x, coords.y);
+                SVGtoPDF(doc, cube, coords.x, coords.y)
 
                 coords.x = coords.x + cubeWidth
             }
 
 
-            doc.end();
+            doc.end()
 
             return doc
         } catch (e) {
-            throw new Error(e)
+            throw e
         }
     }
 }

@@ -1,11 +1,9 @@
-import {AspectRatio, MosaicTypeName} from "../types/types";
+import {AspectRatio, MosaicTypeName, CroppedImageMatrix, CubeDetails, ImagePath} from '../types'
 import {createCanvas, Image} from 'canvas'
 import {Mosaic} from './Mosaic'
 // @ts-ignore
 import SvgBuilder from 'svg-builder'
-import {CroppedImageMatrix, CubeDetails, ImagePath} from "../types/modules";
-import {generateMatrix} from "../utils/support";
-import {resolve} from "path";
+import {generateMatrix} from '../utils'
 
 export class Cropper extends Mosaic {
     public croppedImage: CroppedImageMatrix | undefined
@@ -22,16 +20,26 @@ export class Cropper extends Mosaic {
 
     cropImagePath(image: Image, x: number, y: number): Promise<ImagePath> {
         return new Promise(resolve => {
-            const canvas = createCanvas(this.mosaicSize, this.mosaicSize)
-            const context = canvas.getContext('2d');
+            const canvas = createCanvas(this.mosaicSize.naturalSize, this.mosaicSize.naturalSize)
+            const context = canvas.getContext('2d')
 
-            const sx = x * this.mosaicSize
-            const sy = y * this.mosaicSize
+            const sx = x * this.mosaicSize.naturalSize
+            const sy = y * this.mosaicSize.naturalSize
 
-            canvas.width = this.mosaicSize;
-            canvas.height = this.mosaicSize;
+            canvas.width = this.mosaicSize.naturalSize
+            canvas.height = this.mosaicSize.naturalSize
 
-            context.drawImage(image, sx, sy, this.mosaicSize, this.mosaicSize, 0, 0, this.mosaicSize, this.mosaicSize);
+            context.drawImage(
+                image,
+                sx,
+                sy,
+                this.mosaicSize.naturalSize,
+                this.mosaicSize.naturalSize,
+                0,
+                0,
+                this.mosaicSize.naturalSize,
+                this.mosaicSize.naturalSize
+            )
 
             const b64 = canvas.toDataURL('image/png')
 
@@ -50,7 +58,8 @@ export class Cropper extends Mosaic {
                 this.croppedImage = generateMatrix(yCubes, xCubes, yMosaic)
             }
 
-            const img = new Image();
+            const img = new Image()
+
             img.src = this.url
 
             for (let line = 0; line < yCubes; line++) {
@@ -62,13 +71,13 @@ export class Cropper extends Mosaic {
 
                             const {image, sx, sy} = await this.cropImagePath(img, x, y)
 
-                            this.croppedImage[line][cube][cubeLine].push({image, x: cubeLine, y: mosaic, sx, sy})
+                            this.croppedImage[line][cube][cubeLine].push({image, x, y, sx, sy})
                         }
                     }
                 }
             }
         } catch (e) {
-            throw new Error(e)
+            throw new e
         }
     }
 
@@ -141,7 +150,7 @@ export class Cropper extends Mosaic {
 
             return cubesDetails
         } catch (e) {
-            throw new Error(e)
+            throw e
         }
     }
 }
