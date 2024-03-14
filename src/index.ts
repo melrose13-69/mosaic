@@ -34,6 +34,7 @@ const image3: ImageDataForTest = {name: '40x50_12x15_13x13_ratio_4x5', ext: 'jpe
             console.log(`Working dir: ${outputSizeDirName}`)
 
             for await (const pallete of pallets) {
+
                 console.time(`generateMosaicImage ${name} - ${pallete}`)
                 const image = await mosaic.generateMosaicImage(pallete)
                 console.timeEnd(`generateMosaicImage ${name} - ${pallete}`)
@@ -41,6 +42,10 @@ const image3: ImageDataForTest = {name: '40x50_12x15_13x13_ratio_4x5', ext: 'jpe
                 const base64Image = image.split(';base64,').pop() as string
 
                 writeFileSync(`${outputSizeDirName}/${pallete}.png`, base64Image, {encoding: 'base64'})
+
+                console.time(`generateInstructions ${name} - ${pallete}`)
+                await mosaic.generateInstructions(base64Image, pallete, `${outputSizeDirName}/${pallete}.pdf`)
+                console.timeEnd(`generateInstructions ${name} - ${pallete}`)
             }
         }
     } catch (e) {
